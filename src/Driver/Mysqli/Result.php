@@ -21,6 +21,11 @@ final class Result implements ResultInterface
     private mysqli_stmt $statement;
 
     /**
+     * Holds a reference to the Statement that created the result
+     */
+    private ?Statement $statementReference;
+
+    /**
      * Whether the statement result has columns. The property should be used only after the result metadata
      * has been fetched ({@see $metadataFetched}). Otherwise, the property value is undetermined.
      */
@@ -40,11 +45,17 @@ final class Result implements ResultInterface
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
+     * @param Statement|null $statementReference This reference is to not trigger destruction of the Statement object too early.
+     *
      * @throws Exception
      */
-    public function __construct(mysqli_stmt $statement)
+    public function __construct(
+        mysqli_stmt $statement,
+        ?Statement $statementReference = null,
+    )
     {
         $this->statement = $statement;
+        $this->statementReference = $statementReference;
 
         $meta = $statement->result_metadata();
 
